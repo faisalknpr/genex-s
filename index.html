@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <title>Document Upload</title>
+  </head>
+  <body>
+    <div class="container mt-5">
+      <div class="row">
+        <div class="col-md-4">
+          <div class="card">
+            <div class="card-header">
+              Passport
+            </div>
+            <div class="card-body">
+              <form action="/upload" method="post" enctype="multipart/form-data">
+                <div class="form-group">
+                  <input type="file" class="form-control-file" name="files[]">
+                </div>
+                <button type="submit" class="btn btn-primary">Upload</button>
+              </form>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="card">
+            <div class="card-header">
+              Aadhaar
+            </div>
+            <div class="card-body">
+              <form action="/upload" method="post" enctype="multipart/form-data">
+                <div class="form-group">
+                  <input type="file" class="form-control-file" name="files[]">
+                </div>
+                <button type="submit" class="btn btn-primary">Upload</button>
+              </form>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="card">
+            <div class="card-header">
+              Driving License
+            </div>
+            <div class="card-body">
+              <form action="/upload" method="post" enctype="multipart/form-data">
+                <div class="form-group">
+                  <input type="file" class="form-control-file" name="files[]">
+                </div>
+                <button type="submit" class="btn btn-primary">Upload</button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
