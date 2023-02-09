@@ -1,78 +1,107 @@
-const express = require("express");
-const multer = require("multer");
-const mongodb = require("mongodb");
-const bcrypt = require("bcrypt");
-const http = require("http");
-const fs = require('fs');
+const express = require('express');
+const multer = require('multer');
+const path = require('path');
 
 const app = express();
-const router = express.Router();
-const upload = multer();
-
-const url = "mongodb://localhost:27017/";
-const dbName = "sensitiveFiles";
-
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-router.post("/upload", upload.array("files"), async (req, res) => {
-  const files = req.files;
-  const saltRounds = 10;
-
-  const encryptedPassport = await bcrypt.hash(files[0].buffer, saltRounds);
-  const encryptedAdhaar = await bcrypt.hash(files[1].buffer, saltRounds);
-  const encryptedDrivingLicense = await bcrypt.hash(files[2].buffer, saltRounds);
-
-  const client = new mongodb.MongoClient(url, { useNewUrlParser: true });
-  await client.connect();
-
-  const db = client.db(dbName);
-  const collection = db.collection("files");
-
-  const result = await collection.insertOne({
-    passport: encryptedPassport,
-    adhaar: encryptedAdhaar,
-    drivingLicense: encryptedDrivingLicense
-  });
-
-  client.close();
-
-  res.send(result);
+// Set up multer for file uploads
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, 'uploads');
+  },
+  filename: (req, file, cb) => {
+    cb(null, file.fieldname + '-' + Date.now() + path.extname(file.originalname));
+  },
 });
 
-router.get("/view", async (req, res) => {
-  const client = new mongodb.MongoClient(url, { useNewUrlParser: true });
-  await client.connect();
+const upload = multer({
+  storage,
+  fileFilter: (req, file, cb) => {
+    checkFileType(file, cb);
+  },
+}).array('docs', 3);
 
-  const db = client.db(dbName);
-  const collection = db.collection("files");
+// Check file type
+function checkFileType(file, cb) {
+  // Allowed ext
+  const filetypes = /jpeg|jpg/;
+  // Check ext
+  const extname = filetypes.test(path.extname(file.originalname).toLowerCase());
+  // Check mime
+  const mimetype = filetypes.test(file.mimetype);
 
-  const file = await collection.findOne();
-
-  if (!file) {
-    return res.status(404).send("No files found.");
+  if (mimetype && extname) {
+    return cb(null, true);
+  } else {
+    cb('Error: Images Only!');
   }
+}
 
-  const decryptedPassport = await bcrypt.compare(file.passport, encryptedPassport);
-  const decryptedAdhaar = await bcrypt.compare(file.adhaar, encryptedAdhaar);
-  const decryptedDrivingLicense = await bcrypt.compare(file.drivingLicense, encryptedDrivingLicense);
-
-  client.close();
-
-  res.set("Content-Type", "application/octet-stream");
-  res.send([decryptedPassport, decryptedAdhaar, decryptedDrivingLicense]);
+app.post('/upload', (req, res) => {
+  upload(req, res, (err) => {
+    if (err) {
+      res.status(400).json({ msg: err });
+    } else {
+      if (req.files === undefined) {
+        res.status(400).json({ msg: 'No file selected' });
+      } else {
+        res.json({ msg: 'File uploaded', files: req.files });
+      }
+    }
+  });
 });
 
-app.use("/", router);
-app.get("/", function(req,res){
-   res.redirect("/");
-})
-
-// const options = {
-//   key: fs.readFileSync("server.key"),
-//   cert: fs.readFileSync("server.cert")
-// };
-
-http.createServer(app).listen(3000, () => {
-  console.log("HTTPS server running on port 3000");
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'index.html'));
 });
+
+const PORT = process.env.PORT || 5000;
+
+app.listen(PORT, () => console.log(`Server started on port ${PORT}`));
+
+
+
+
+// using the Node.js built-in crypto module to encrypt the files using the AES-256-CBC algorithm
+
+
+const crypto = require('crypto');
+const algorithm = 'aes-256-cbc';
+const key = crypto.randomBytes(32); // key should be stored in mongoDB
+const iv = crypto.randomBytes(16); // initialization vector should be stored in mongoDB
+
+
+// code block to store user details, file names, key and iv in mongoDB
+
+
+// function for encryption
+function encryptFile(filePath) {
+  const readStream = fs.createReadStream(filePath);
+  const cipher = crypto.createCipheriv(algorithm, key, iv);
+  const encryptedName = `${filePath}.enc`;
+  const writeStream = fs.createWriteStream(encryptedName);
+
+  readStream
+    .pipe(cipher)
+    .pipe(writeStream)
+    .on('finish', () => {
+      console.log(`Encrypted file: ${encryptedName}`);
+    });
+}
+
+// function for decryption
+function decryptFile(encryptedFilePath) {
+  const encryptedReadStream = fs.createReadStream(encryptedFilePath);
+  const decipher = crypto.createDecipheriv(algorithm, key, iv);
+  const decryptedName = encryptedFilePath.slice(0, -4);
+  const decryptedWriteStream = fs.createWriteStream(decryptedName);
+
+  encryptedReadStream
+    .pipe(decipher)
+    .pipe(decryptedWriteStream)
+    .on('finish', () => {
+      console.log(`Decrypted file: ${decryptedName}`);
+    });
+}

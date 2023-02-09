@@ -8,51 +8,26 @@
   </head>
   <body>
     <div class="container mt-5">
-      <div class="row">
-        <div class="col-md-4">
-          <div class="card">
-            <div class="card-header">
-              Passport
-            </div>
-            <div class="card-body">
-              <form action="/upload" method="post" enctype="multipart/form-data">
-                <div class="form-group">
-                  <input type="file" class="form-control-file" name="files[]">
-                </div>
-                <button type="submit" class="btn btn-primary">Upload</button>
-              </form>
-            </div>
-          </div>
+      <div class="card">
+        <div class="card-header">
+          Documents
         </div>
-        <div class="col-md-4">
-          <div class="card">
-            <div class="card-header">
-              Aadhaar
+        <div class="card-body">
+          <form action="/upload" method="post" enctype="multipart/form-data">
+            <div class="form-group">
+              <label for="adhaar">Adhaar:</label>
+              <input id="adhaar" type="file" class="form-control-file" name="docs">
             </div>
-            <div class="card-body">
-              <form action="/upload" method="post" enctype="multipart/form-data">
-                <div class="form-group">
-                  <input type="file" class="form-control-file" name="files[]">
-                </div>
-                <button type="submit" class="btn btn-primary">Upload</button>
-              </form>
+            <div class="form-group">
+              <label for="passport">Passport:</label>
+              <input id="passport" type="file" class="form-control-file" name="docs">
             </div>
-          </div>
-        </div>
-        <div class="col-md-4">
-          <div class="card">
-            <div class="card-header">
-              Driving License
+            <div class="form-group">
+              <label for="dl">Driving Liscense:</label>
+              <input id="dl" type="file" class="form-control-file" name="docs">
             </div>
-            <div class="card-body">
-              <form action="/upload" method="post" enctype="multipart/form-data">
-                <div class="form-group">
-                  <input type="file" class="form-control-file" name="files[]">
-                </div>
-                <button type="submit" class="btn btn-primary">Upload</button>
-              </form>
-            </div>
-          </div>
+            <button type="submit" class="btn btn-primary">Upload</button>
+          </form>
         </div>
       </div>
     </div>
