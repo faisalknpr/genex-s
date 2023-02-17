@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>My Page</title>
+</head>
+<body>
+  <table>
+    <thead>
+      <tr>
+        <th>Documents</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% data.forEach(item => { %>
+        <tr>
+          <td> <p><%= item.fileName %></p>
+            <img src="<%=item.fileName%>" style= "width: 200px; height: 200px;" alt="">
+            <br><a href="<%= item.fileName %>" download>Download</a>
+ </td>
+        </tr>
+      <% }); %>
+    </tbody>
+  </table>
+</body>
+</html>
